@@ -39,31 +39,37 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ className = '' }) => {
     setNewMessage('');
     
     try {
-      // Simulate API call
+      // Convert message format for API consumption (ai → assistant)
+      const apiMessages = [...messages, { role: 'user', content: newMessage }].map(msg => ({
+        role: msg.role === 'ai' ? 'assistant' : msg.role,
+        content: msg.content
+      }));
+      
+      // Call API
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [...messages, { role: 'user', content: newMessage }],
+          messages: apiMessages,
           provider: settings.provider,
           model: settings.model
         })
       });
       
       if (!response.ok) {
-        throw new Error('Failed to get response from AI');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to get response from AI');
       }
       
-      // Since we don't have a real backend response yet, simulate a response
-      setTimeout(() => {
-        setMessages(prev => [
-          ...prev, 
-          { 
-            role: 'ai', 
-            content: "I'll help you with that! Based on your skills, I've found several remote software engineering positions that might be a good fit. Would you like me to show you the top matches or help tailor your resume for these opportunities first?" 
-          }
-        ]);
-      }, 1000);
+      // Parse and use the actual API response
+      const responseData = await response.json();
+      setMessages(prev => [
+        ...prev, 
+        { 
+          role: 'ai', 
+          content: responseData.content || "I'm sorry, I couldn't generate a response. Please try again."
+        }
+      ]);
       
     } catch (error) {
       console.error('Error sending message:', error);
