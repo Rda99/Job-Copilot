@@ -16,8 +16,8 @@ interface LLMContextType {
 }
 
 const DEFAULT_SETTINGS: LLMSettings = {
-  provider: 'openai',
-  model: 'gpt-4o',
+  provider: 'gemini',
+  model: 'gemini-pro',
   apiKey: '',
   ollamaEndpoint: 'http://localhost:11434'
 };
