@@ -77,7 +77,27 @@ const JobSearch: React.FC = () => {
     ));
   };
   
-  const modelInfo = LLM_MODELS[settings.provider].find(m => m.id === settings.model);
+  // Safely get the model info with fallbacks to prevent errors
+  const getModelInfo = () => {
+    try {
+      // Ensure provider exists and is a valid key in LLM_MODELS
+      if (!settings || !settings.provider || !LLM_MODELS[settings.provider]) {
+        return { provider: 'AI', model: 'Model' };
+      }
+      
+      const providerName = settings.provider.charAt(0).toUpperCase() + settings.provider.slice(1);
+      const models = LLM_MODELS[settings.provider] || [];
+      const modelInfo = models.find(m => m.id === settings.model);
+      const modelName = modelInfo?.name || settings.model || 'Model';
+      
+      return { provider: providerName, model: modelName };
+    } catch (error) {
+      console.error('Error getting model info:', error);
+      return { provider: 'AI', model: 'Model' };
+    }
+  };
+  
+  const { provider, model } = getModelInfo();
   
   return (
     <div className="p-6">
@@ -95,7 +115,7 @@ const JobSearch: React.FC = () => {
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">AI-Matched Job Recommendations</h2>
           <span className="flex items-center px-2 py-1 text-xs font-medium rounded-full bg-blue-50 text-primary dark:bg-blue-900/30">
             <i className="mr-1 bx bx-chip"></i>
-            <span>{`${settings.provider.charAt(0).toUpperCase() + settings.provider.slice(1)} • ${modelInfo?.name || settings.model}`}</span>
+            <span>{`${provider} • ${model}`}</span>
           </span>
         </div>
         
