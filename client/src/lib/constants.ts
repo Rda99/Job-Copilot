@@ -20,9 +20,9 @@ export const LLM_MODELS: Record<string, LLMModel[]> = {
     { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku', isDefault: false }
   ],
   gemini: [
-    { id: 'gemini-pro', name: 'Gemini Pro', isDefault: true },
-    { id: 'gemini-pro-vision', name: 'Gemini Pro Vision', isDefault: false },
-    { id: 'gemini-ultra', name: 'Gemini Ultra', isDefault: false }
+    { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', isDefault: true },
+    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', isDefault: false },
+    { id: 'gemini-pro', name: 'Gemini Pro (Legacy)', isDefault: false }
   ],
   ollama: [
     { id: 'gamma3:1b', name: 'Gamma3:1b', isDefault: true },

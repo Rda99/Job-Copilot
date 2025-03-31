@@ -17,18 +17,33 @@ interface LLMContextType {
 
 const DEFAULT_SETTINGS: LLMSettings = {
   provider: 'gemini',
-  model: 'gemini-pro',
+  model: 'gemini-pro', // Use gemini-pro as it's more widely compatible
   apiKey: '',
   ollamaEndpoint: 'http://localhost:11434'
 };
 
 const LLMContext = createContext<LLMContextType | undefined>(undefined);
 
-export function LLMProvider({ children }: { children: ReactNode }) {
+// Custom hook to use the LLM context
+const useLLM = () => {
+  const context = useContext(LLMContext);
+  if (context === undefined) {
+    throw new Error('useLLM must be used within a LLMProvider');
+  }
+  return context;
+};
+
+// Provider component
+const LLMProvider = ({ children }: { children: ReactNode }) => {
   const [settings, setSettings] = useState<LLMSettings>(() => {
-    // Try to load settings from localStorage
-    const savedSettings = localStorage.getItem('llm_settings');
-    return savedSettings ? JSON.parse(savedSettings) : DEFAULT_SETTINGS;
+    try {
+      // Try to load settings from localStorage
+      const savedSettings = localStorage.getItem('llm_settings');
+      return savedSettings ? JSON.parse(savedSettings) : DEFAULT_SETTINGS;
+    } catch (error) {
+      console.error('Error loading LLM settings from localStorage:', error);
+      return DEFAULT_SETTINGS;
+    }
   });
   
   const [showAPISettings, setShowAPISettings] = useState(false);
@@ -37,7 +52,11 @@ export function LLMProvider({ children }: { children: ReactNode }) {
 
   // Save settings to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('llm_settings', JSON.stringify(settings));
+    try {
+      localStorage.setItem('llm_settings', JSON.stringify(settings));
+    } catch (error) {
+      console.error('Error saving LLM settings to localStorage:', error);
+    }
   }, [settings]);
 
   const setProvider = (provider: LLMProviderType) => {
@@ -111,12 +130,6 @@ export function LLMProvider({ children }: { children: ReactNode }) {
       {children}
     </LLMContext.Provider>
   );
-}
+};
 
-export function useLLM() {
-  const context = useContext(LLMContext);
-  if (context === undefined) {
-    throw new Error('useLLM must be used within a LLMProvider');
-  }
-  return context;
-}
+export { LLMProvider, useLLM };
